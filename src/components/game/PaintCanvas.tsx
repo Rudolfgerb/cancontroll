@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
 import { Home, AlertTriangle, ShieldCheck, Clock, MapPin, Star } from 'lucide-react';
 import { GraffitiToolbar } from './painting/GraffitiToolbar';
+import { useNavigate } from 'react-router-dom';
 
 // Tool type is now defined here as the central controller
 export type Tool = 'spraycan' | 'marker' | 'fatcap' | 'skinnycap' | 'roller' | 'stencil';
@@ -27,6 +28,7 @@ const toolProperties = {
 export const PaintCanvas: React.FC<PaintCanvasProps> = ({ onComplete, onBusted, backgroundImage, riskLevel }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { gameState, selectColor, usePaint } = useGame();
+  const navigate = useNavigate();
   
   // State
   const [isDrawing, setIsDrawing] = useState(false);
@@ -54,7 +56,7 @@ export const PaintCanvas: React.FC<PaintCanvasProps> = ({ onComplete, onBusted, 
       const ctx = getContext();
       if(canvas && ctx && backgroundImage){
           const img = new Image();
-          img.crossOrigin = "anonymous";
+          img.crossOrigin = 'anonymous';
           img.src = backgroundImage;
           img.onload = () => {
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -108,6 +110,7 @@ export const PaintCanvas: React.FC<PaintCanvasProps> = ({ onComplete, onBusted, 
     ctx.stroke();
 
     const distance = Math.sqrt(Math.pow(x - lastPos.current.x, 2) + Math.pow(y - lastPos.current.y, 2));
+    console.log(`Tool: ${selectedTool}, Distance: ${distance}, Consumption: ${properties.consumption}`);
     usePaint(distance * properties.consumption);
 
     lastPos.current = { x, y };
@@ -138,6 +141,10 @@ export const PaintCanvas: React.FC<PaintCanvasProps> = ({ onComplete, onBusted, 
   };
 
   const formatTime = (seconds: number) => `${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`;
+
+  const goToAuth = () => {
+    navigate('/auth');
+  };
 
   return (
     <div className="flex h-screen w-screen bg-neutral-800 text-white font-sans">
@@ -197,6 +204,7 @@ export const PaintCanvas: React.FC<PaintCanvasProps> = ({ onComplete, onBusted, 
                         ✅ ACCEPT
                     </Button>
                     <Button variant="ghost" size="icon" onClick={onBusted}><Home className="h-5 w-5" /></Button>
+                    <Button onClick={goToAuth}>Start Painting</Button>
                 </div>
             </div>
 
