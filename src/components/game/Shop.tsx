@@ -19,18 +19,22 @@ const availableColors = [
 ];
 
 const Shop = () => {
-  const { fame, hasPaint, addPaint, money, removeMoney } = useGame();
-  console.log("Money:", money)
-  console.log("fame: ", fame)
+  const { fame, purchaseColor, money, removeMoney } = useGame();
+  console.log("Shop component rendered");
+  console.log("Money:", money);
+  console.log("Fame:", fame);
 
   const { playPurchase } = useSoundEffects();
 
   const handlePurchase = (color: { id: string; name: string; cost: number }) => {
     if (money >= color.cost) {
-      removeMoney(color.cost);
-      addPaint(color.id);
-      playPurchase();
-      toast.success(`Purchased ${color.name} paint!`);
+      const success = purchaseColor(color.id, color.cost);
+      if (success) {
+        playPurchase();
+        toast.success(`Purchased ${color.name} paint!`);
+      } else {
+        toast.error('Purchase failed!');
+      }
     } else {
       toast.error('Not enough money!');
     }
