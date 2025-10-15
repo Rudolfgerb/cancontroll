@@ -6,12 +6,13 @@ import { CityMap } from '@/components/game/CityMap';
 import { PaintCanvas } from '@/components/game/PaintCanvas';
 import { Shop } from '@/components/game/Shop';
 import { Hideout } from '@/components/game/Hideout';
+import StreetView from '@/components/game/StreetView'; // Import StreetView component
 import { useGame, Spot } from '@/contexts/GameContext';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
-import { Map, ShoppingBag, Home, Star, DollarSign, AlertTriangle, Trophy, SprayCan } from 'lucide-react';
+import { Map, ShoppingBag, Home, Star, DollarSign, AlertTriangle, Trophy, SprayCan, Globe } from 'lucide-react'; // Import Globe icon
 import { toast } from 'sonner';
 
-type GameView = 'hideout' | 'map' | 'shop' | 'painting';
+type GameView = 'hideout' | 'map' | 'shop' | 'painting' | 'streetview'; // Add 'streetview' to GameView type
 
 const Game: React.FC = () => {
   const [currentView, setCurrentView] = useState<GameView>('hideout');
@@ -151,6 +152,17 @@ const Game: React.FC = () => {
             <ShoppingBag className="w-5 h-5" />
             Shop
           </Button>
+          <Button
+            variant={currentView === 'streetview' ? 'default' : 'outline'}
+            className="w-full justify-start gap-3"
+            onClick={() => {
+              playClick();
+              setCurrentView('streetview');
+            }}
+          >
+            <Globe className="w-5 h-5" />
+            Street View
+          </Button>
 
           {/* Quick Stats */}
           <Card className="p-4 mt-6">
@@ -184,6 +196,7 @@ const Game: React.FC = () => {
               difficulty={selectedSpot.difficulty}
             />
           )}
+          {currentView === 'streetview' && <StreetView />}
         </div>
       </div>
 

@@ -1,164 +1,56 @@
 import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { useGame, Spot } from '@/contexts/GameContext';
-import { MapPin, Star, DollarSign, Shield, CheckCircle2 } from 'lucide-react';
-import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { getGoogleMapsApiKey } from '@/lib/googleApi';
+import { MapPin } from 'lucide-react';
 
 interface CityMapProps {
   onSelectSpot: (spot: Spot) => void;
 }
 
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%',
+};
+
+const center = {
+  lat: 40.7128,
+  lng: -74.0060,
+};
+
+const mapOptions = {
+  disableDefaultUI: true,
+  zoomControl: true,
+};
+
 export const CityMap: React.FC<CityMapProps> = ({ onSelectSpot }) => {
   const { gameState } = useGame();
-  const { playClick } = useSoundEffects();
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy': return 'bg-neon-lime/20 border-neon-lime text-neon-lime';
-      case 'medium': return 'bg-neon-cyan/20 border-neon-cyan text-neon-cyan';
-      case 'hard': return 'bg-neon-orange/20 border-neon-orange text-neon-orange';
-      case 'extreme': return 'bg-primary/20 border-primary text-primary';
-      default: return 'bg-muted';
-    }
-  };
-
-  const handleSpotClick = (spot: Spot) => {
-    playClick();
-    onSelectSpot(spot);
-  };
 
   return (
-    <div className="h-full flex flex-col bg-urban-dark">
-      {/* Map Header */}
-      <div className="bg-urban-surface border-b-2 border-urban-border p-4">
-        <h2 className="text-2xl font-black uppercase tracking-tight mb-1">Stadt-Map</h2>
-        <p className="text-sm text-muted-foreground">Wähle einen Spot zum Malen</p>
-      </div>
-
-      {/* Map View */}
-      <div className="flex-1 p-4 overflow-y-auto">
-        <div className="relative w-full h-[500px] bg-gradient-to-br from-urban-surface to-background rounded-lg border-2 border-urban-border p-4">
-          {/* Grid Background */}
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: `linear-gradient(hsl(var(--border)) 1px, transparent 1px),
-                             linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px)`,
-            backgroundSize: '20px 20px'
-          }} />
-
-          {/* Spots */}
+    <div className="h-full w-full">
+      <LoadScript googleMapsApiKey={getGoogleMapsApiKey()}>
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={center}
+          zoom={13}
+          options={mapOptions}
+          mapTypeId="satellite"
+        >
           {gameState.spots.map((spot) => (
-            <button
+            <Marker
               key={spot.id}
-              onClick={() => handleSpotClick(spot)}
-              className="absolute group cursor-pointer"
-              style={{
-                left: `${spot.x}%`,
-                top: `${spot.y}%`,
-                transform: 'translate(-50%, -50%)',
+              position={{ lat: spot.lat, lng: spot.lng }}
+              onClick={() => onSelectSpot(spot)}
+              icon={{
+                url: `data:image/svg+xml;utf8,${encodeURIComponent(
+                  `<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=\"48\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"${spot.painted ? '#34D399' : '#F97316'}\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"></path><circle cx=\"12\" cy=\"10\" r=\"3\"></circle></svg>`
+                )}`,
+                scaledSize: new window.google.maps.Size(48, 48),
               }}
-            >
-              <div className="relative">
-                {/* Spot Marker */}
-                <div className={`
-                  w-12 h-12 rounded-full border-2 flex items-center justify-center
-                  transition-all duration-300 group-hover:scale-125
-                  ${spot.painted ? 'bg-neon-lime/30 border-neon-lime' : getDifficultyColor(spot.difficulty)}
-                  ${!spot.painted && 'animate-pulse-slow'}
-                `}>
-                  {spot.painted ? (
-                    <CheckCircle2 className="w-6 h-6" />
-                  ) : (
-                    <MapPin className="w-6 h-6" />
-                  )}
-                </div>
-
-                {/* Guard Indicator */}
-                {spot.hasGuard && !spot.painted && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-destructive rounded-full flex items-center justify-center border-2 border-background">
-                    <Shield className="w-3 h-3 text-destructive-foreground" />
-                  </div>
-                )}
-
-                {/* Tooltip */}
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                  <div className="bg-card border-2 border-border rounded-lg p-3 shadow-strong">
-                    <div className="font-bold text-sm mb-2">{spot.name}</div>
-                    <div className="flex gap-3 text-xs">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 text-neon-orange" />
-                        <span>{spot.fameReward}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="w-3 h-3 text-neon-lime" />
-                        <span>{spot.moneyReward}</span>
-                      </div>
-                    </div>
-                    {spot.painted && (
-                      <div className="text-xs text-neon-lime mt-1">✓ Painted</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </button>
+            />
           ))}
-        </div>
-
-        {/* Legend */}
-        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-3 h-3 rounded-full bg-neon-lime border border-neon-lime" />
-            <span className="text-muted-foreground">Easy</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-3 h-3 rounded-full bg-neon-cyan border border-neon-cyan" />
-            <span className="text-muted-foreground">Medium</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-3 h-3 rounded-full bg-neon-orange border border-neon-orange" />
-            <span className="text-muted-foreground">Hard</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-3 h-3 rounded-full bg-primary border border-primary" />
-            <span className="text-muted-foreground">Extreme</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Spots List */}
-      <div className="bg-urban-surface border-t-2 border-urban-border p-4">
-        <h3 className="text-sm font-bold uppercase mb-3 text-muted-foreground">Alle Spots</h3>
-        <div className="grid gap-2 max-h-48 overflow-y-auto">
-          {gameState.spots.map((spot) => (
-            <Card
-              key={spot.id}
-              className={`p-3 cursor-pointer hover:border-primary/50 transition-all ${
-                spot.painted ? 'opacity-60' : ''
-              }`}
-              onClick={() => handleSpotClick(spot)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${getDifficultyColor(spot.difficulty).split(' ')[0]}`} />
-                  <div>
-                    <div className="font-bold text-sm">{spot.name}</div>
-                    <div className="flex gap-2 text-xs text-muted-foreground mt-1">
-                      <span className="flex items-center gap-1">
-                        <Star className="w-3 h-3" /> {spot.fameReward}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <DollarSign className="w-3 h-3" /> {spot.moneyReward}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                {spot.painted && <CheckCircle2 className="w-5 h-5 text-neon-lime" />}
-                {spot.hasGuard && !spot.painted && <Shield className="w-5 h-5 text-destructive" />}
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
+        </GoogleMap>
+      </LoadScript>
     </div>
   );
 };

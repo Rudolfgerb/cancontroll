@@ -21,8 +21,8 @@ export interface SprayColor {
 export interface Spot {
   id: string;
   name: string;
-  x: number;
-  y: number;
+  lat: number;
+  lng: number;
   difficulty: 'easy' | 'medium' | 'hard' | 'extreme';
   fameReward: number;
   moneyReward: number;
@@ -71,13 +71,13 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 const initialSpots: Spot[] = [
-  { id: 's1', name: 'Hinterhof Alley', x: 20, y: 30, difficulty: 'easy', fameReward: 10, moneyReward: 5, hasGuard: false, painted: false },
-  { id: 's2', name: 'Park Mauer', x: 45, y: 25, difficulty: 'easy', fameReward: 15, moneyReward: 8, hasGuard: false, painted: false },
-  { id: 's3', name: 'U-Bahn Station', x: 60, y: 50, difficulty: 'medium', fameReward: 30, moneyReward: 15, hasGuard: true, painted: false },
-  { id: 's4', name: 'Hauptstraße', x: 35, y: 60, difficulty: 'medium', fameReward: 40, moneyReward: 20, hasGuard: true, painted: false },
-  { id: 's5', name: 'Shopping Mall', x: 70, y: 70, difficulty: 'hard', fameReward: 60, moneyReward: 35, hasGuard: true, painted: false },
-  { id: 's6', name: 'Bahnhof Gleis', x: 80, y: 35, difficulty: 'extreme', fameReward: 100, moneyReward: 60, hasGuard: true, painted: false },
-  { id: 's7', name: 'Polizeiwache', x: 50, y: 80, difficulty: 'extreme', fameReward: 150, moneyReward: 100, hasGuard: true, painted: false },
+  { id: 's1', name: 'Hinterhof Alley', lat: 40.714, lng: -74.005, difficulty: 'easy', fameReward: 10, moneyReward: 5, hasGuard: false, painted: false },
+  { id: 's2', name: 'Park Mauer', lat: 40.716, lng: -74.002, difficulty: 'easy', fameReward: 15, moneyReward: 8, hasGuard: false, painted: false },
+  { id: 's3', name: 'U-Bahn Station', lat: 40.718, lng: -74.008, difficulty: 'medium', fameReward: 30, moneyReward: 15, hasGuard: true, painted: false },
+  { id: 's4', name: 'Hauptstraße', lat: 40.712, lng: -74.009, difficulty: 'medium', fameReward: 40, moneyReward: 20, hasGuard: true, painted: false },
+  { id: 's5', name: 'Shopping Mall', lat: 40.710, lng: -74.001, difficulty: 'hard', fameReward: 60, moneyReward: 35, hasGuard: true, painted: false },
+  { id: 's6', name: 'Bahnhof Gleis', lat: 40.720, lng: -74.003, difficulty: 'extreme', fameReward: 100, moneyReward: 60, hasGuard: true, painted: false },
+  { id: 's7', name: 'Polizeiwache', lat: 40.713, lng: -74.012, difficulty: 'extreme', fameReward: 150, moneyReward: 100, hasGuard: true, painted: false },
 ];
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
